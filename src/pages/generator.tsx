@@ -1,78 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import { LifeministryContext } from '../App';
-import { IAssignment, WeeksList } from '../types/ministry.types';
-import { DropdownMenuItemType, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
-import { Fabric, FontWeights, getTheme, IChoiceGroupOption, IStackStyles, IStackTokens, mergeStyleSets, Pivot, PivotItem, PivotLinkFormat, PrimaryButton, Stack } from '@fluentui/react';
-import { Text } from '@fluentui/react';
-import { Card } from '@uifabric/react-cards';
-import GeneratorDates from '../components/generator/dates';
+import React from 'react';
+import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import Stepper from '@material-ui/core/Stepper';
+import Step from '@material-ui/core/Step';
+//import StepLabel from '@material-ui/core/StepLabel';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
+import { TimeOpts, WeeksList } from '../types/ministry.types';
+//import GeneratorDates from '../components/generator/dates';
+//import { IChoiceGroupOption } from '@fluentui/react';
+import DatesGenerator from '../components/generator/datesGenerator';
+import { /* Container */ Paper, StepButton } from '@material-ui/core';
 import GeneratorAssigments from '../components/generator/assignment';
 import GeneratorProgram from '../components/generator/generator';
-import SchedulesList from '../components/generator/schedulesList';
 
-export const GeneratorContext: any = React.createContext("");
-
-const theme = getTheme();
-const classNames = mergeStyleSets({
-    wrapper: {
-        //height: '40vh',
-        position: 'relative',
-        maxHeight: 'inherit',
-        //width: '45vh',
-    },
-    pane: {
-        maxWidth: 400,
-        border: '1px solid ' + theme.palette.neutralLight,
-    },
-    sticky: {
-        //color: theme.palette.neutralDark,
-        padding: '5px 20px 5px 10px',
-        fontSize: '13px',
-        //borderTop: '1px solid ' + theme.palette.black,
-        //borderBottom: '1px solid ' + theme.palette.black,
-    },
-    textContent: {
-        padding: '15px 10px',
-    },
-    checkbox: {
-        padding: '5px'
-    },
-    flexDiv: [
-        //theme.fonts.xLargePlus,
-        {
-            flex: '1 1 auto',
-            //borderTop: '1px solid rgb(149 149 149)',
-            //color: theme.palette.neutralPrimary,
-            display: 'flex',
-            alignItems: 'center',
-            fontWeight: FontWeights.semibold,
-            //width: "100%",
-            padding: '12px 12px 14px 24px',
-        },
-    ],
-});
-const styles = {
-    cardStyles: {
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
         root: {
-            background: 'white',
-            padding: 10,
-            //borderTop: '5px solid #0078d4',
-            width: '90%',
-            maxWidth: '90%',
-            margin: 'auto',
-            //height: '55vh',
-        }
-    },
-};
-
-const fabricStyle: IStackStyles = {
-    root: {
-        width: "100%",
-    },
-};
-
-//const scrollablePaneStyles: Partial<IScrollablePaneStyles> = { root: classNames.pane };
-const sectionStackTokens: IStackTokens = { childrenGap: 30 };
+            //width: '100%',
+            display: "flex"
+        },
+        backButton: {
+            marginRight: theme.spacing(1),
+        },
+        instructions: {
+            marginTop: theme.spacing(1),
+            marginBottom: theme.spacing(1),
+        },
+        content: {
+            flexGrow: 1,
+            padding: theme.spacing(3),
+            marginRight: theme.spacing(3),
+            marginLeft: theme.spacing(3),
+        },
+    }),
+);
 
 export const getWeeksFromMonth = (year: number, months: number[] | string[]): WeeksList[] => {
     let weeks: WeeksList[] = [];
@@ -121,164 +82,266 @@ function rangeMonths(start: number, end: number) {
 const monthsRange = rangeMonths(toDay.getMonth(), 11);
 console.log(monthsRange);
 
-const weeksList: WeeksList[] = getWeeksFromMonth(2021, monthsRange);
+const weeksListArray: WeeksList[] = getWeeksFromMonth(2021, monthsRange);
 
-/* const DropdownControlledMultiOptions: IDropdownOption[] = weeksList.map(ele => {
-    let rObj = { key: 'weeksHeader', text: 'Semanas', itemType: DropdownMenuItemType.Header };
-    rObj.key = ele.start.toLocaleDateString() + ele.end.toLocaleDateString();
-    rObj.text = ele.start.toDateString() + " al " + ele.end.toDateString();
-    rObj.itemType = 0;
-    return rObj
-});
-
-console.log(DropdownControlledMultiOptions); */
-
-type tpOptions = {
-    [key: string]: boolean
+function getSteps() {
+    return ['Escoge las semanas', 'Organiza las asignaciones', 'Genera el programa'];
 }
 
-interface TimeOpts extends tpOptions {
-    week: boolean;
-    month: boolean
+type assgOptions = {
+    [key: string]: any
 }
 
-function Generator() {
-    const initialData: IAssignment[] = [{ "id": 0, "name": "Initial", "type": "school", "participants": 0 }];
-    //const [, setStdData] = useState<IAssignment[]>(initialData);
+const Generator = () => {
+    const classes = useStyles();
+    const [activeStep, setActiveStep] = React.useState(0);
+    const steps = getSteps();
+
     const [selectedWeeks, setSelectedWeeks] = React.useState<string[]>([]);
+    const [timeOption, setTimeOption] = React.useState<TimeOpts>({ week: false, month: true });
     const [selectedMonths, setSelectedMonths] = React.useState<string[]>([]);
-    const [timeOption, setTimeOption] = React.useState<TimeOpts>({ week: false, month: false });
-    const [selectedAssigments, setSelectedAssigments] = React.useState({});
-    const [selectedKey, setSelectedKey] = React.useState<number>(0);
+    const [scheduleWeeks, setScheduleWeeks] = React.useState<WeeksList[]>([]);
+    const [selectedAssigments, setSelectedAssigments] = React.useState<assgOptions>({});
 
-    const _onChangeOptions = (ev?: React.FormEvent<HTMLElement | HTMLInputElement>, option?: IChoiceGroupOption): void => {
+    const _onChangeOptions = (event: React.ChangeEvent<HTMLInputElement>): void => {
+        const option = event.target.value
         console.log(option);
         let newTimeoOpt = { ...timeOption };
         Object.keys(newTimeoOpt).forEach(v => newTimeoOpt[v] = false);
         setTimeOption({
             ...newTimeoOpt,
-            [option?.key as string]: true
+            [option as string]: true
         })
         //updateValues2("gender", option?.key)
+           let newSelectedWeeks: WeeksList[] = [];
+        if (option === "month") {
+            //setOptSelected("month");
+            newSelectedWeeks = getWeeksFromMonth(2021, selectedMonths)
+            //setScheduleWeeks(newSelectedWeeks);
+        }
+        if (option === "week") {
+            //setOptSelected("week");
+            newSelectedWeeks = weeksListArray.filter((week, index) => {
+                // if (props.stdWeeks.includes(index.toString())) {
+                return selectedWeeks.includes(index.toString())
+                //}
+            }).map(week => week)
+            //setScheduleWeeks(newSelectedWeeks)
+        }
+
+        let newSelectedAssignments = {};
+        newSelectedWeeks.forEach((week: WeeksList) => {
+            console.log("Creating Assi")
+            newSelectedAssignments = { ...newSelectedAssignments, [week.start.toLocaleDateString()]: { assignmentsIds: [1, 2, 3, 4], dates: week, partners: [] } }
+        })
+
+        console.log(newSelectedAssignments);
+        setSelectedAssigments(newSelectedAssignments);
+        //props.assigmentsChange(newSelectedAssignments);
     }
-    function _onChangeWeeks(ev?: React.FormEvent<HTMLElement>, isChecked?: boolean) {
+
+    //const updateDatesSelected = () => {
+    //    let newSelectedWeeks: WeeksList[] = [];
+    //    if (timeOption.month) {
+    //        //setOptSelected("month");
+    //        newSelectedWeeks = getWeeksFromMonth(2021, selectedMonths)
+    //        //setScheduleWeeks(newSelectedWeeks);
+    //    }
+    //    if (timeOption.week) {
+    //        //setOptSelected("week");
+    //        newSelectedWeeks = weeksListArray.filter((week, index) => {
+    //            // if (props.stdWeeks.includes(index.toString())) {
+    //            return selectedWeeks.includes(index.toString())
+    //            //}
+    //        }).map(week => week)
+    //        //setScheduleWeeks(newSelectedWeeks)
+    //    }
+
+    //    let newSelectedAssignments = {};
+    //    newSelectedWeeks.forEach((week: WeeksList) => {
+    //        console.log("Creating Assi")
+    //        //newSelectedAssignments = { ...newSelectedAssignments, [week.start.toLocaleDateString()]: { assignmentsIds: [1, 2, 3, 4], dates: [], partners: [] } }
+
+    //        newSelectedAssignments = { ...newSelectedAssignments, [week.start.toLocaleDateString()]: { assignmentsIds: [1, 2, 3, 4], dates: week, partners: [] } }
+    //    })
+
+    //    console.log(newSelectedAssignments);
+    //    //props.assigmentsChange(newSelectedAssignments);
+    //    setSelectedAssigments(newSelectedAssignments);
+    //    //return newSelectedAssignments
+    //    //let assgList: any[] = []
+
+    //}
+
+    const _onChangeWeeks = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const isChecked: boolean = event.target.checked
         console.log(`The option has been changed to ${isChecked}.`);
-        const event = ev?.target as HTMLButtonElement;
-        setSelectedWeeks(
-            isChecked ? [...selectedWeeks, event.name as string] : selectedWeeks.filter(item => item !== event.name),
-        );
-    }
+        const newSelectedWeeks = isChecked ? [...selectedWeeks, event.target.name] : selectedWeeks.filter(item => item !== event.target.name)
+        setSelectedWeeks(newSelectedWeeks);
+
+        let newScheduleWeeks: WeeksList[] = [];
+        newScheduleWeeks = weeksListArray.filter((week, index) => {
+            // if (props.stdWeeks.includes(index.toString())) {
+            return newSelectedWeeks.includes(index.toString())
+            //}
+        }).map(week => week)
+
+        let newSelectedAssignments = { ...selectedAssigments }
+        if (isChecked) {
+            newSelectedAssignments = { ...selectedAssigments, [weeksListArray[parseInt(event.target.name)].start.toLocaleDateString()]: { assignmentsIds: [1, 2, 3, 4], dates: weeksListArray[parseInt(event.target.name)], partners: [] } }
+        } else {
+            delete newSelectedAssignments[weeksListArray[parseInt(event.target.name)].start.toLocaleDateString()]
+        }
+        setScheduleWeeks(newScheduleWeeks)
+        setSelectedAssigments(newSelectedAssignments);
+
+    };
+
+    // function _onChangeWeeks2(ev?: React.FormEvent<HTMLElement>, isChecked?: boolean) {
+    //       console.log(`The option has been changed to ${isChecked}.`);
+    //       const event = ev?.target as HTMLButtonElement;
+    //       setSelectedWeeks(
+    //           isChecked ? [...selectedWeeks, event.name as string] : selectedWeeks.filter(item => item !== event.name),
+    //       );
+    //   }
+
     const _onChangeMonths = (ev?: React.FormEvent<HTMLElement>, isChecked?: boolean) => {
         console.log(`The option has been changed to ${isChecked}.`);
         const event = ev?.target as HTMLButtonElement;
-        setSelectedMonths(
-            isChecked ? [...selectedMonths, event.name as string] : selectedMonths.filter(item => item !== event.name),
-        );
+        const newSelectedMonths = isChecked ? [...selectedMonths, event.name as string] : selectedMonths.filter(item => item !== event.name)
+        setSelectedMonths(newSelectedMonths);
+
+        const newScheduleWeeks = [...getWeeksFromMonth(2021, [event.name])]
+        let newSelectedAssignments = { ...selectedAssigments }
+
+        if (isChecked) {
+            newScheduleWeeks.forEach((week: WeeksList) => {
+                console.log("Creating Assi from month - Adding")
+                newSelectedAssignments = { ...newSelectedAssignments, [week.start.toLocaleDateString()]: { assignmentsIds: [1, 2, 3, 4], dates: week, partners: [] } }
+            })
+        } else {
+            newScheduleWeeks.forEach((week: WeeksList) => {
+                console.log("Creating Assi from month - Deleting")
+                delete newSelectedAssignments[week.start.toLocaleDateString()]
+            })
+        }
+        //setScheduleWeeks([...scheduleWeeks, ...newScheduleWeeks])
+        setScheduleWeeks(newScheduleWeeks)
+        setSelectedAssigments(newSelectedAssignments);
+
     }
 
-    const loadSavedSchedule = () => {
-        console.log("loading a Schedule")
-        setSelectedKey(2)
+    const isStepCompleted = (step: number) => {
+        switch (step) {
+            case 0:
+                return (selectedWeeks.length > 0 || selectedMonths.length > 0)
+case 1:
+                return true;
+            default:
+                return false;
+        }
     }
 
-    useEffect(() => {
-        // Update the document title using the browser API
+    function getStepContent(stepIndex: number) {
+        switch (stepIndex) {
+            case 0:
+                return <DatesGenerator
+                    monthsChange={_onChangeMonths}
+                    weeksChange={_onChangeWeeks}
+                    timeChange={_onChangeOptions}
+                    timeOpts={timeOption}
+                    stdMonths={selectedMonths}
+                    stdWeeks={selectedWeeks}
+                    weeksListArray={weeksListArray}
+                />
+            case 1:
+                return <GeneratorAssigments
+                    //timeOpts={timeOption}
+                    stdMonths={selectedMonths}
+                    //stdWeeks={selectedWeeks}
+                    fullWeeksList={weeksListArray}
+                    stdAssigments={selectedAssigments}
+                    //stdAssigments={() => {updateDatesSelected()}}
+                    assigmentsChange={setSelectedAssigments}
+                //scheduleWeeks={scheduleWeeks}
+                />
+            case 2:
+                return <GeneratorProgram stdAssigments={selectedAssigments}/>
+            default:
+                return 'Unknown stepIndex';
+        }
+    }
+    const handleStep = (step: number) => () => {
+        if (step > 0) {
+            if (!isStepCompleted(step - 1)) {
+                alert("Por completar paso " + step.toString())
+                return
+            }
+        }
+        setActiveStep(step);
+    };
+    const handleNext = () => {
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    };
 
-    }, [selectedKey]);
+    const handleBack = () => {
+        setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    };
+
+    const handleReset = () => {
+        setActiveStep(0);
+    };
+
+    React.useEffect(() => {
+        //updateDatesSelected()
+
+    }, []);
 
     return (
-        <Fabric styles={fabricStyle}>
-            <div className={classNames.flexDiv}>
-                <div>
-                    <Text variant={"xLarge"} block> Programador de Asignaciones </Text>
-                </div>
+        <>
+            <div className={classes.root}>
+                <Paper className={classes.content}>
+                    <Stepper activeStep={activeStep} alternativeLabel nonLinear >
+                        {steps.map((label, index) => (
+                            <Step key={label}>
+                                {/* <StepLabel>{label}</StepLabel> */}
+                                <StepButton
+                                    onClick={handleStep(index)}
+                                    completed={isStepCompleted(index)}
+                                >
+                                    {label}
+                                </StepButton>
+                            </Step>
+                        ))}
+                    </Stepper>
+                    <div>
+                        {activeStep === steps.length ? (
+                            <div>
+                                <Typography className={classes.instructions}>All steps completed</Typography>
+                                <Button onClick={handleReset}>Reset</Button>
+                            </div>
+                        ) : (
+                                <div>
+                                    <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
+                                    <div>
+                                        <Button
+                                            disabled={activeStep === 0}
+                                            onClick={handleBack}
+                                            className={classes.backButton}
+                                        >
+                                            Back
+              </Button>
+                                        <Button variant="contained" color="primary" onClick={handleNext}>
+                                            {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+                    </div>
+                </Paper >
+                <Paper className={classes.content}><span>Programaciones</span></Paper>
             </div>
-            <Stack horizontal tokens={sectionStackTokens}>
-                <Stack.Item grow={4}>
-                    <Card aria-label="Basic vertical card" styles={styles.cardStyles}>
-                        <Card.Item>
-                            <Pivot aria-label="Basic Pivot Example" selectedKey={String(selectedKey)} /* linkFormat={PivotLinkFormat.tabs} */>
-                                <PivotItem
-                                    headerText="Escoger fechas"
-                                    itemKey="0"
-                                    headerButtonProps={{
-                                        'data-order': 1,
-                                        'data-title': 'Semanas',
-                                    }}
-                                >
-                                    <GeneratorDates
-                                        monthsChange={_onChangeMonths}
-                                        weeksChange={_onChangeWeeks}
-                                        timeChange={_onChangeOptions}
-                                        timeOpts={timeOption}
-                                        stdMonths={selectedMonths}
-                                        stdWeeks={selectedWeeks}
-                                    />
-                                </PivotItem>
-                                <PivotItem
-                                    headerText="Organizar Asignaciones"
-                                    itemKey="1"
-                                    headerButtonProps={{
-                                        'data-order': 3,
-                                        'data-title': 'Organizar',
-                                    }}
-                                >
-                                    <GeneratorAssigments
-                                        timeOpts={timeOption}
-                                        stdMonths={selectedMonths}
-                                        stdWeeks={selectedWeeks}
-                                        fullWeeksList={weeksList}
-                                        stdAssigments={selectedAssigments}
-                                        assigmentsChange={setSelectedAssigments}
-                                    />
-                                </PivotItem>
-                                <PivotItem
-                                    headerText="Generar Programa"
-                                    itemKey="2"
-                                    headerButtonProps={{
-                                        'data-order': 1,
-                                        'data-title': 'Generar',
-                                    }}
-                                >
-                                    <GeneratorProgram
-                                        stdAssigments={selectedAssigments}
-                                    />
-                                </PivotItem>
-                            </Pivot>
-                        </Card.Item>
-                    </Card>
-                    {/* <Card styles={styles.cardStyles}>
-                    <Card.Item>
-                        <PrimaryButton text="Asignaciones" allowDisabledFocus />
-                    </Card.Item>
-                </Card>
-                <Card styles={styles.cardStyles}>
-                    <Card.Item>
-                        <PrimaryButton text="Generar" allowDisabledFocus />
-                    </Card.Item>
-                </Card> */}
-                </Stack.Item>
-                <Stack.Item grow={1}>
-                    <Card aria-label="Basic vertical card" styles={styles.cardStyles}>
-                        <Card.Item>
-                            <strong>Lista de programaciones</strong>
-                            <SchedulesList loadSchedule={loadSavedSchedule} />
-                        </Card.Item>
-                    </Card>
-                </Stack.Item>
-            </Stack>
-            {/* <Dropdown
-                placeholder="Selecione las semanas"
-                label="Semanas seleccionadas"
-                selectedKeys={selectedKeys}
-                // eslint-disable-next-line react/jsx-no-bind
-                onChange={onChange}
-                multiSelect
-                options={DropdownControlledMultiOptions}
-                styles={dropdownStyles}
-            /> */}
-        </Fabric>
+        </>
     );
 }
-
-export default Generator; 
+export default Generator

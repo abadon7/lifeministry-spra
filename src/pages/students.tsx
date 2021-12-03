@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { LifeministryContext } from '../App';
-import StudentsTable from '../components/students/stdList';
+import StudentsTable from '../components/students/studentsList';
 import { IStudent } from '../types/ministry.types';
 
 function Students() {
