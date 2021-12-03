@@ -5,14 +5,9 @@ import { DropdownMenuItemType, IDropdownOption } from 'office-ui-fabric-react/li
 import { Checkbox, ChoiceGroup, FontWeights, getTheme, IChoiceGroupOption, IStackTokens, Label, mergeStyleSets, Stack } from '@fluentui/react';
 import { WeeksList } from '../../types/ministry.types';
 import { getWeeksFromMonth } from '../../pages/generator';
-<<<<<<< HEAD
 import { createStyles, FormControl, FormControlLabel, FormGroup, FormLabel, makeStyles, Theme } from '@material-ui/core';
 
 //const theme = getTheme();
-=======
-
-const theme = getTheme();
->>>>>>> main
 const classNames = mergeStyleSets({
     wrapper: {
         //height: '40vh',
@@ -22,11 +17,7 @@ const classNames = mergeStyleSets({
     },
     pane: {
         maxWidth: 400,
-<<<<<<< HEAD
         //border: '1px solid ' + theme.palette.neutralLight,
-=======
-        border: '1px solid ' + theme.palette.neutralLight,
->>>>>>> main
     },
     sticky: {
         //color: theme.palette.neutralDark,
@@ -56,7 +47,6 @@ const classNames = mergeStyleSets({
     ],
 });
 
-<<<<<<< HEAD
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
@@ -68,8 +58,6 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-=======
->>>>>>> main
 const sectionStackTokens: IStackTokens = { childrenGap: 30 };
 
 
@@ -126,10 +114,7 @@ const GeneratorDates: React.FunctionComponent<Props> = (props: Props) => {
     //const initialData: IAssignment[] = [{ "id": 0, "name": "Initial", "type": "school", "participants": 0 }];
     const [optSelected, setOptSelected] = useState<string>("");
     //const db: any = React.useContext(LifeministryContext)
-<<<<<<< HEAD
     const classes = useStyles();
-=======
->>>>>>> main
 
     const weeksListArray: WeeksList[] = getWeeksFromMonth(2021, monthsRange);
 
@@ -154,7 +139,6 @@ const GeneratorDates: React.FunctionComponent<Props> = (props: Props) => {
     }, [props]);
 
     return (
-<<<<<<< HEAD
         <>
             <FormControl component="fieldset" className={classes.formControl}>
                 <FormLabel component="legend">Semanas</FormLabel>
@@ -201,40 +185,6 @@ const GeneratorDates: React.FunctionComponent<Props> = (props: Props) => {
                 </div>
             </Stack> */}
         </>
-=======
-
-        <Stack horizontal tokens={sectionStackTokens}>
-            <ChoiceGroup label="Tipo de fecha" defaultSelectedKey={optSelected} options={options} onChange={props.timeChange} />
-            <div className={classNames.wrapper}>
-                <Label>Semanas</Label>
-                {/* <ScrollablePane styles={scrollablePaneStyles}> */}
-                {DropdownControlledMultiOptions.map((week, index) => {
-                    return (
-                        <Checkbox disabled={!props.timeOpts.week} className={classNames.checkbox} name={index.toString()} key={week.key} label={week.text} onChange={props.weeksChange} checked={props.stdWeeks.includes(index.toString())} />
-                    );
-                })}
-                {/* </ScrollablePane> */}
-            </div>
-            {/* </PivotItem>
-                                    <PivotItem headerText="Meses"> */}
-            <div className={classNames.wrapper}>
-                <Label>Meses</Label>
-                {/* <ScrollablePane styles={scrollablePaneStyles}> */}
-                {months.map((month, index) => {
-                    if (index >= toDay.getMonth()) {
-                        return (
-                            <Checkbox disabled={!props.timeOpts.month} className={classNames.checkbox} name={index.toString()} checked={props.stdMonths.includes(index.toString())} key={index} label={month} onChange={props.monthsChange} />
-                        );
-                    } else {
-                        return (
-                            <Checkbox disabled className={classNames.checkbox} name={index.toString()} key={index} label={month} onChange={props.monthsChange} />
-                        );
-                    }
-                })}
-            </div>
-        </Stack>
-
->>>>>>> main
     );
 }
 

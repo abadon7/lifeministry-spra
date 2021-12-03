@@ -1,8 +1,5 @@
 import { ActionButton, CommandBarButton, DefaultPalette, getTheme, IIconProps, IStackItemStyles, IStackStyles, IStackTokens, KTP_LAYER_ID, mergeStyleSets, PrimaryButton, Stack } from "@fluentui/react";
-<<<<<<< HEAD
 import {Button} from "@material-ui/core";
-=======
->>>>>>> main
 import React from "react";
 import { ClassificationType } from "typescript";
 import { LifeministryContext } from "../../App";
@@ -99,12 +96,8 @@ const GeneratorProgram: React.FunctionComponent<Props> = (props: Props) => {
     return (
         <>
             <div><CommandBarButton iconProps={addIcon} text="Guardar" className={classNames.saveBtn} onClick={saveShcedule} /></div>
-<<<<<<< HEAD
             {/* <PrimaryButton text="Generar" allowDisabledFocus onClick={() => { getPartners(props.stdAssigments) }} />*/}
             <Button variant="contained" color="primary" onClick={()=>{getPartners(props.stdAssigments)}}>Generar</Button>
-=======
-            <PrimaryButton text="Generar" allowDisabledFocus onClick={() => { getPartners(props.stdAssigments) }} />
->>>>>>> main
             <div>
                 {/* {getPartnersLayout(allCouples)} */}
                 <PartnersLayout partners={allCouples} />
@@ -113,8 +106,4 @@ const GeneratorProgram: React.FunctionComponent<Props> = (props: Props) => {
     )
 }
 
-<<<<<<< HEAD
 export default GeneratorProgram;
-=======
-export default GeneratorProgram;
->>>>>>> main
