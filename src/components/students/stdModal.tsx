@@ -1,240 +1,250 @@
-import * as React from 'react';
-import { useId, useBoolean } from '@uifabric/react-hooks';
+import React, { useContext, useEffect } from "react";
+import Button from "@material-ui/core/Button";
+import TextField from "@material-ui/core/TextField";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+//import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
 import {
-    getTheme,
-    mergeStyleSets,
-    FontWeights,
-    ContextualMenu,
-    //Toggle,
-    DefaultButton,
-    Modal,
-    //IDragOptions,
-    IconButton,
-    IIconProps,
-} from 'office-ui-fabric-react';
-import { ChoiceGroup, IChoiceGroupOption, IStackStyles, Label, /* MaskedTextField, */ MessageBar, MessageBarType, PrimaryButton, Spinner, Stack, TextField, Toggle } from '@fluentui/react';
-import { StudentsCalendar } from '../calendar/calendar';
-import { useEffect } from 'react';
-import { IStudent } from '../../types/ministry.types';
+  FormControlLabel,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  Snackbar,
+  Switch,
+} from "@material-ui/core";
+import { LifeMinistryContext } from "../../App";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import AccountCircle from "@material-ui/icons/AccountCircle";
+import PhoneIcon from "@material-ui/icons/Phone";
+import { IStudent } from "../../types/ministry.types";
+import MuiAlert, { AlertProps, Color } from "@material-ui/lab/Alert";
 
-
-const cancelIcon: IIconProps = { iconName: 'Cancel' };
-
-const options: IChoiceGroupOption[] = [
-    { key: 'f', text: 'Hermana', iconProps: { iconName: 'Contact' } },
-    { key: 'm', text: 'Hermano', iconProps: { iconName: 'Contact' } },
-];
-
-
-/* const initialData: IStudent[] = [{
-    "id": 0,
-    "name": "",
-    "gender": "f",
-    "cel": 0,
-    "active": true,
-    "notes": "",
-    "last": "",
-    "lastpartner": 0
-}]
- */
-interface Props {
-    addStd: any;
-    isOpen?: boolean;
-    onClose: any;
-    mode: string;
-    data: IStudent[];
+function Alert(props: AlertProps) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-const SuccessMsg = () => (
-    <MessageBar
-        messageBarType={MessageBarType.success}
-        isMultiline={false}
-    >
-        La información se ha guadado correctamente
-    </MessageBar>
-);
+const initialData: IStudent[] = [
+  {
+    id: 0,
+    name: "",
+    gender: "f",
+    cel: 0,
+    active: true,
+    notes: "Estudiante nuevo",
+    last: new Date("01/01/21").toISOString(),
+    lastpartner: 0,
+  },
+];
 
-const footerStackStyles: Partial<IStackStyles> = { root: { width: "100%" } };
+interface Props {
+  open: boolean;
+  id: number;
+  handleClose: any;
+  sendStudentData: Function;
+}
 
-export const StudentsModal: React.FunctionComponent<Props> = (props: Props) => {
-    const [isModalOpen, { setTrue: showModal, setFalse: hideModal }] = useBoolean(false);
-    const [stdData, setStdData] = React.useState<IStudent[]>(props.data)
-    const [currentDate, setCurrentDate] = React.useState<Date>()
-    const [isMsgShow, { setTrue: showMsg, setFalse: hideMsg }] = useBoolean(false);
-    const [isLoadShow, { setTrue: showLoad, setFalse: hideLoad }] = useBoolean(false);
+const StudentsModal: React.FC<Props> = ({
+  open,
+  id,
+  handleClose,
+  sendStudentData,
+}) => {
+  //const [open, setOpen] = React.useState(false);
 
-    const updateValues = (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-        const ele = e.target as HTMLInputElement;
-        console.log(ele.id);
-        let value: string | number = ele.value;
-        const keyName = ele.id;
-        if (keyName === "cel") {
-            value = parseInt(value);
-        }
-        setStdData([{
-            ...stdData[0],
-            [keyName]: value
-        }])
+  const [stdData, setStdData] = React.useState<IStudent[]>(initialData);
+  //const handleClickOpen = () => {
+  //  setOpen(true);
+  //};
+
+  //const handleClose = () => {
+  //  setOpen(false);
+  //};
+
+  const handleStudentsEdit = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(event.target.name);
+    const keyName = event.target.name;
+    let value: string | number | boolean = event.target.value;
+    if (keyName === "cel") {
+      value = parseInt(value);
     }
-
-    const updateValues2 = (key?: string, value?: string | boolean | number | Date): void => {
-        console.log(`${key} = ${value}`);
-        setStdData([{
-            ...stdData[0],
-            [key as string]: value
-        }])
+    if (keyName === "active") {
+      value = event.target.checked;
     }
+    setStdData([
+      {
+        ...stdData[0],
+        [keyName]: value,
+      },
+    ]);
+  };
 
-    function _onChangeOptions(ev?: React.FormEvent<HTMLElement | HTMLInputElement>, option?: IChoiceGroupOption): void {
-        console.dir(option);
-        updateValues2("gender", option?.key)
+  const sendStdData = (): void => {
+    const result = sendStudentData(stdData);
+    result.then(() => {
+      //setOpenAlertInfo({
+      //  open: true,
+      //  type: "success",
+      //  message: "Guardado exitoso",
+      //});
+      setOpenAlertInfo({ ...openAlertInfo, open: true });
+    });
+  };
+
+  const db: any = useContext(LifeMinistryContext);
+  //const classes = useStyles();
+  const alertInfo = {
+    open: false,
+    type: "success",
+    message: "Guardado exitoso",
+  };
+
+  const [openAlertInfo, setOpenAlertInfo] = React.useState(alertInfo);
+
+  // const handleClick = () => {
+  //   setOpen(true);
+  // };
+
+  const handleCloseAlert = (event?: React.SyntheticEvent, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
     }
-    function _onChangeToggle(ev?: React.MouseEvent<HTMLElement>, checked?: boolean) {
-        console.log('toggle is ' + (checked ? 'checked' : 'not checked'));
-        updateValues2("active", checked)
+    setOpenAlertInfo(alertInfo);
+  };
+
+  useEffect(() => {
+    if (id !== 0) {
+      console.log("Editando un estudiante");
+      console.log(
+        db.getStudent(id).then((res: IStudent[]) => {
+          console.log(res);
+          setStdData(res);
+        })
+      );
     }
-
-    const onChangeDate = (date: Date) => {
-        console.log(date);
-        setCurrentDate(date);
-        updateValues2("last", date.toISOString())
-    }
-    // Use useId() to ensure that the IDs are unique on the page.
-    // (It's also okay to use plain strings and manually ensure uniqueness.)
-    const titleId = useId('title');
-
-    const sendStdData = (): void => {
-        showLoad();
-        //updateValues2("last", currentDate?.toISOString())
-        const result = props.addStd(stdData);
-        if (result) {
-            hideLoad();
-            showMsg();
-            setTimeout(function () { hideMsg(); }, 3000);
-        }
-    }
-
-    useEffect(() => {
-        setStdData(props.data);
-        console.log(props.data);
-        let formatedDate: string = "01/01/21";
-        const currentDate = props.data[0].last;
-        if (currentDate) {
-            formatedDate = currentDate.split("T")[0].replace(/-/g, "/");
-        }
-        const newFormatedDate = new Date(formatedDate);
-        setCurrentDate(newFormatedDate);
-        //updateValues2("last", newFormatedDate.toISOString());
-        if (props.mode === "edit") {
-            console.log("This is a edit mode modal");
-            //setStdData(props.data);
-        } else {
-            console.log("This is a new modal");
-            //updateValues2("last", newFormatedDate.toISOString());
-        }
-    }, [props.data, props.mode])
-
-    return (
-        <div>
-            <Modal
-                titleAriaId={titleId}
-                isOpen={props.isOpen}
-                onDismiss={props.onClose}
-                isBlocking={false}
-                containerClassName={contentStyles.container}
-                dragOptions={undefined}
+  }, [db, id]);
+  return (
+    <div>
+      {/*<Button variant="outlined" color="primary" onClick={handleClickOpen}>
+        Nuevo
+      </Button>*/}
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">
+          Estudiante
+          <FormControlLabel
+            style={{ float: "right" }}
+            control={
+              <Switch
+                checked={stdData[0].active}
+                onChange={handleStudentsEdit}
+                name="active"
+              />
+            }
+            label={stdData[0].active ? "Activo" : "Inactivo"}
+          />
+        </DialogTitle>
+        <DialogContent>
+          {/*<DialogContentText></DialogContentText>*/}
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            name="name"
+            label="Nombre"
+            type=""
+            fullWidth
+            value={stdData[0].name}
+            onChange={handleStudentsEdit}
+            variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <AccountCircle />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <FormLabel component="legend">Género</FormLabel>
+          <RadioGroup
+            row
+            aria-label="gender"
+            name="gender"
+            value={stdData[0].gender}
+            onChange={handleStudentsEdit}
+          >
+            <FormControlLabel value="f" control={<Radio />} label="Mujer" />
+            <FormControlLabel value="m" control={<Radio />} label="Hombre" />
+          </RadioGroup>
+          <TextField
+            margin="dense"
+            id="note"
+            name="notes"
+            label="Notas"
+            type=""
+            fullWidth
+            multiline
+            rows={4}
+            value={stdData[0].notes}
+            onChange={handleStudentsEdit}
+            variant="outlined"
+          />
+          <TextField
+            margin="dense"
+            id="cel"
+            name="cel"
+            label="Celular"
+            type="number"
+            fullWidth
+            value={stdData[0].cel}
+            onChange={handleStudentsEdit}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <PhoneIcon />
+                </InputAdornment>
+              ),
+            }}
+            variant="outlined"
+          />
+          {/*<FormControlLabel
+            control={
+              <Switch
+                checked={stdData[0].active}
+                onChange={handleChangeActive}
+                name="checkedA"
+              />
+            }
+            label="Activo"
+          />*/}
+          <Snackbar
+            open={openAlertInfo.open}
+            autoHideDuration={6000}
+            onClose={handleCloseAlert}
+          >
+            <Alert
+              onClose={handleCloseAlert}
+              severity={openAlertInfo.type as Color}
             >
-                <div className={contentStyles.header}>
-                    <span id={titleId}>Datos del Estudiante</span>
-                    <IconButton
-                        styles={iconButtonStyles}
-                        iconProps={cancelIcon}
-                        ariaLabel="Close popup modal"
-                        onClick={props.onClose}
-                    />
-                </div>
-                <div className={contentStyles.body}>
-                    <TextField label="Nombre" id="name" required defaultValue={stdData[0].name} onChange={(event) => { updateValues(event) }} />
-                    <ChoiceGroup label="Escoja uno" id="gender" required defaultSelectedKey={stdData[0].gender} options={options} onChange={_onChangeOptions} />
-                    <Toggle label="Activo" id="active" inlineLabel onText="Si" offText="No" defaultChecked={stdData[0].active} onChange={_onChangeToggle} />
-                    <TextField id="notes" label="Nota" onChange={(event) => { updateValues(event) }} />
-                    <TextField label="Celular" required id="cel" type="number" defaultValue={stdData[0].cel.toString()} onChange={(event) => { updateValues(event) }} />
-                    {/* <MaskedTextField label="With input mask" mask="(999) 999 - 9999" /> */}
-                    <Label>Última asignación</Label>
-                    <StudentsCalendar onChangeDate={onChangeDate} currentDate={currentDate} />
-                </div>
-                <div>
-                    {isLoadShow &&
-                        <Spinner label="Guardando..." ariaLive="assertive" labelPosition="right" />
-                    }
-                    {isMsgShow &&
-                        <SuccessMsg />
-                    }
-                </div>
-                <div className={contentStyles.footer}>
-                    <Stack horizontal horizontalAlign="end" styles={footerStackStyles}>
-                        <DefaultButton text="Borrar" onClick={showModal} />
-                        <PrimaryButton text="Guardar" onClick={() => { sendStdData() }} />
-                    </Stack>
-                </div>
-            </Modal>
-        </div>
-    );
+              {openAlertInfo.message}
+            </Alert>
+          </Snackbar>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={sendStdData} color="primary">
+            Enviar
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
 };
 
-const theme = getTheme();
-const contentStyles = mergeStyleSets({
-    container: {
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        alignItems: 'stretch',
-    },
-    header: [
-
-        //theme.fonts.xLargePlus,
-        {
-            flex: '1 1 auto',
-            borderTop: `4px solid ${theme.palette.themePrimary}`,
-            color: theme.palette.neutralPrimary,
-            display: 'flex',
-            alignItems: 'center',
-            fontWeight: FontWeights.semibold,
-            padding: '12px 12px 14px 24px',
-        },
-    ],
-    body: {
-        flex: '4 4 auto',
-        padding: '0 24px 24px 24px',
-        overflowY: 'hidden',
-        selectors: {
-            p: { margin: '14px 0' },
-            'p:first-child': { marginTop: 0 },
-            'p:last-child': { marginBottom: 0 },
-        },
-    },
-    footer: [
-
-        //theme.fonts.xLargePlus,
-        {
-            flex: '1 1 auto',
-            borderTop: '1px solid rgb(149 149 149)',
-            color: theme.palette.neutralPrimary,
-            display: 'flex',
-            alignItems: 'center',
-            fontWeight: FontWeights.semibold,
-            padding: '12px 12px 14px 24px',
-        },
-    ],
-});
-
-const iconButtonStyles = {
-    root: {
-        color: theme.palette.neutralPrimary,
-        marginLeft: 'auto',
-        marginTop: '4px',
-        marginRight: '2px',
-    },
-    rootHovered: {
-        color: theme.palette.neutralDark,
-    },
-};
+export default StudentsModal;

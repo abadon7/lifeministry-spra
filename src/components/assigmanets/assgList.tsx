@@ -17,7 +17,7 @@ import { AssigmentsModal } from './assgModal';
 import { useBoolean } from '@uifabric/react-hooks';
 import { CommandBarButton, /* DefaultButton, */ /* DefaultPalette, */ FontWeights, IIconProps, ISearchBoxStyles, /* IStackItemStyles, */ IStackStyles, /* IStackTokens, Label, */ SearchBox, Stack, Text } from '@fluentui/react';
 import { IAssignment, IDataBase } from '../../types/ministry.types';
-import { LifeministryContext } from '../../App';
+import { LifeMinistryContext } from '../../App';
 
 const classNames = mergeStyleSets({
     fileIconHeaderIcon: {
@@ -148,7 +148,7 @@ const AssigmentsTable = (props: Props) => {
     const [announcedMessage, setAnnouncedMessage] = React.useState();
     const [isModalOpen, { setTrue: showModal, setFalse: hideModal }] = useBoolean(false);
     const [modalData, setModalData] = React.useState({ mode: "new", data: initialData })
-    const db: IDataBase = React.useContext(LifeministryContext)
+    const db: IDataBase = React.useContext(LifeMinistryContext)
 
     React.useEffect(() => {
         console.log("component updated");

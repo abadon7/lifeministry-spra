@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { LifeministryContext } from '../App';
+import { LifeMinistryContext } from '../App';
 import AssigmentsTable from '../components/assigmanets/assgList';
 import { IAssignment } from '../types/ministry.types';
 
 function Assignments() {
     const initialData: IAssignment[] = [{ "id": 0, "name": "Initial", "type": "school", "participants": 0 }];
     const [stdData, setStdData] = useState<IAssignment[]>(initialData);
-    const db: any = React.useContext(LifeministryContext);
+    const db: any = React.useContext(LifeMinistryContext);
 
     useEffect(() => {
         // Update the document title using the browser API

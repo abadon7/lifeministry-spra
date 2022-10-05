@@ -16,7 +16,7 @@ import { mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
 import { useBoolean } from '@uifabric/react-hooks';
 import { CommandBarButton, /* DefaultButton, */ DefaultPalette, FontWeights, IIconProps, ISearchBoxStyles, IStackItemStyles, IStackStyles, IStackTokens, Label, SearchBox, Stack, Text } from '@fluentui/react';
 import { IStudent } from '../../types/ministry.types';
-import { LifeministryContext } from '../../App';
+import { LifeMinistryContext } from '../../App';
 
 const classNames = mergeStyleSets({
     fileIconHeaderIcon: {
@@ -132,7 +132,7 @@ const SimpleStudentsTable = (props: Props) => {
     const [announcedMessage, setAnnouncedMessage] = React.useState();
     const [isModalOpen, { setTrue: showModal, setFalse: hideModal }] = useBoolean(false);
     const [modalData, setModalData] = React.useState({ mode: "new", data: initialData })
-    const db: any = React.useContext(LifeministryContext)
+    const db: any = React.useContext(LifeMinistryContext)
 
     React.useEffect(() => {
         console.log("component updated");

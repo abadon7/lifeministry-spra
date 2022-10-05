@@ -13,7 +13,7 @@ import {
 } from "@fluentui/react";
 import { IAssignment, WeeksList } from "../../types/ministry.types";
 //import { getWeeksFromMonth } from '../../pages/generator';
-import { LifeministryContext } from "../../App";
+import { LifeMinistryContext } from "../../App";
 import {
   createStyles,
   FormControl,
@@ -133,7 +133,7 @@ const GeneratorAssigments: React.FunctionComponent<Props> = (props: Props) => {
   const [assgList, setAssgList] = useState<IDropdownOption[]>([
     { key: "lectura", text: "Lectura" },
   ]);
-  const db: any = React.useContext(LifeministryContext);
+  const db: any = React.useContext(LifeMinistryContext);
   const [stedAssignments, setstedAssignments] = React.useState({});
   const classes = useStyles();
 

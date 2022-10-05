@@ -16,7 +16,7 @@ import { mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
 import { useBoolean } from '@uifabric/react-hooks';
 import { ActionButton, CommandBarButton, /* DefaultButton, */ DefaultPalette, FontWeights, IIconProps, ISearchBoxStyles, IStackItemStyles, IStackStyles, IStackTokens, Label, SearchBox, Stack, Text } from '@fluentui/react';
 import { IDataBase, ISchedule, IStudent } from '../../types/ministry.types';
-import { LifeministryContext } from '../../App';
+import { LifeMinistryContext } from '../../App';
 
 const classNames = mergeStyleSets({
     fileIconHeaderIcon: {
@@ -128,7 +128,7 @@ const SchedulesList = (props: Props) => {
     const isModalSelection = true;
     const isCompactMode = true;
 
-    const db: IDataBase = React.useContext(LifeministryContext)
+    const db: IDataBase = React.useContext(LifeMinistryContext)
     const [items, setItems] = React.useState<ISchedule[]>([]);
     const [announcedMessage, setAnnouncedMessage] = React.useState();
     const [isModalOpen, { setTrue: showModal, setFalse: hideModal }] = useBoolean(false);

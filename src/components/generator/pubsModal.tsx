@@ -16,7 +16,7 @@ import { /* ChoiceGroup, */ /* IChoiceGroupOption, */ IScrollablePaneStyles, ISt
 //import { StudentsCalendar } from '../calendar/calendar';
 import { useEffect, useState } from 'react';
 import { IAssignment, IStudent } from '../../types/ministry.types';
-import { LifeministryContext } from '../../App';
+import { LifeMinistryContext } from '../../App';
 import SimpleStudentsTable from './simpleStdList';
 
 
@@ -118,7 +118,7 @@ export const PubsModal: React.FunctionComponent<Props> = (props: Props) => {
     const [isLoadShow, { setTrue: showLoad, setFalse: hideLoad }] = useBoolean(false);
     const [stdData, setStdData] = useState<IStudent[]>([])
     const [participant, setParticipant] = useState<IStudent | undefined>()
-    const db: any = React.useContext(LifeministryContext)
+    const db: any = React.useContext(LifeMinistryContext)
 
     const updateValues = (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
         const ele = e.target as HTMLInputElement;

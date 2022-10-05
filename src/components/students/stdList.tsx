@@ -13,11 +13,11 @@ import {
 } from 'office-ui-fabric-react/lib/DetailsList';
 import { MarqueeSelection } from 'office-ui-fabric-react/lib/MarqueeSelection';
 import { mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
-import { StudentsModal } from './stdModal';
+import  StudentsModal  from './stdModal';
 import { useBoolean } from '@uifabric/react-hooks';
 import { CommandBarButton, /* DefaultButton, */ DefaultPalette, FontWeights, IIconProps, ISearchBoxStyles, IStackItemStyles, IStackStyles, IStackTokens, Label, SearchBox, Stack, Text } from '@fluentui/react';
 import { IStudent } from '../../types/ministry.types';
-import { LifeministryContext } from '../../App';
+import { LifeMinistryContext } from '../../App';
 
 const classNames = mergeStyleSets({
     fileIconHeaderIcon: {
@@ -154,7 +154,7 @@ const StudentsTable = (props: Props) => {
     const [announcedMessage, setAnnouncedMessage] = React.useState();
     const [isModalOpen, { setTrue: showModal, setFalse: hideModal }] = useBoolean(false);
     const [modalData, setModalData] = React.useState({ mode: "new", data: initialData })
-    const db: any = React.useContext(LifeministryContext)
+    const db: any = React.useContext(LifeMinistryContext)
 
     React.useEffect(() => {
         console.log("component updated");
@@ -457,7 +457,7 @@ const StudentsTable = (props: Props) => {
                 </Stack>
             </div>
             {/* <Announced message={selectionDetails} /> */}
-            <StudentsModal addStd={_addStd} isOpen={isModalOpen} onClose={hideModal} mode={modalData.mode} data={modalData.data} />
+            {/*<StudentsModal addStd={_addStd} isOpen={isModalOpen} onClose={hideModal} mode={modalData.mode} data={modalData.data} />*/}
             {announcedMessage ? <Announced message={announcedMessage} /> : undefined}
             {isModalSelection ? (
                 <MarqueeSelection selection={_selection}>
