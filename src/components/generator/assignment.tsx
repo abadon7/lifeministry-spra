@@ -5,9 +5,9 @@ import {
   /*  DropdownMenuItemType, */ IDropdownOption,
 } from "office-ui-fabric-react/lib/Dropdown";
 import {
-  /* Checkbox, ChoiceGroup, */ Dropdown,
+  /* Checkbox, ChoiceGroup, Dropdown,*/ 
   getTheme,
-  IDropdownStyles,
+  //IDropdownStyles,
   /* FontWeights, getTheme, */ /* IChoiceGroupOption, */ /* IStackTokens, */ Label /* , mergeStyleSets */ /* , Stack */,
   mergeStyleSets,
 } from "@fluentui/react";
@@ -95,18 +95,18 @@ const months: string[] = [
     'November',
     'December',
 ] */
-const dropdownStyles: Partial<IDropdownStyles> = {
-  dropdown: { width: 200, margin: "0 auto" },
-};
+//const dropdownStyles: Partial<IDropdownStyles> = {
+//  dropdown: { width: 200, margin: "0 auto" },
+//};
 
 type tpOptions = {
   [key: string]: string | number | any;
 };
 
-interface TimeOpts extends tpOptions {
-  week: boolean;
-  month: boolean;
-}
+//interface TimeOpts extends tpOptions {
+//  week: boolean;
+//  month: boolean;
+//}
 
 /* interface AssignmentsSelected extends tpOptions {
     week: boolean;
@@ -180,6 +180,7 @@ const GeneratorAssigments: React.FunctionComponent<Props> = (props: Props) => {
     newstedAssignments[keySplit[0] as string].assignmentsIds[keySplit[1]] =
       parseInt(elValue as string);
     setstedAssignments(newstedAssignments);
+    console.log(stedAssignments)
     props.assigmentsChange(newstedAssignments);
 
     console.log(elName);
